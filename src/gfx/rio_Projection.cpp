@@ -152,9 +152,10 @@ void OrthoProjection::setFromWindow(f32 near, f32 far)
 
 void OrthoProjection::updateMatrix_() const
 {
-    const BaseVec3f& v = { .x = (mLeft + mRight ) / 2.0f,
-                           .y = (mTop  + mBottom) / 2.0f,
-                           .z = (mNear + mFar   ) / 2.0f };
+    const BaseVec3f vTemp = { (mLeft + mRight) / 2.0f,
+                          (mTop + mBottom) / 2.0f,
+                          (mNear + mFar) / 2.0f };
+    const BaseVec3f& v = vTemp;
 
     f32 w_2 = (mRight - mLeft) / 2.0f;
     mMatrix.m[0][0] = 1.0f / w_2;

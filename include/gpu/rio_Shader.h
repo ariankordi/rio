@@ -111,70 +111,70 @@ public:
     // GLSL type: bool
     static void setUniform(bool v, u32 vs_location, u32 fs_location)
     {
-        setUniform((s32)v, vs_location, fs_location);
+        setUniform(static_cast<s32>(v), vs_location, fs_location);
     }
 
     // GLSL type: vec2
     static void setUniform(const BaseVec2f& v, u32 vs_location, u32 fs_location);
     static void setUniform(f32 v0, f32 v1, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec2f){ v0, v1 }, vs_location, fs_location);
+        setUniform(BaseVec2f{ v0, v1 }, vs_location, fs_location);
     }
 
     // GLSL type: ivec2
     static void setUniform(const BaseVec2i& v, u32 vs_location, u32 fs_location);
     static void setUniform(s32 v0, s32 v1, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec2i){ v0, v1 }, vs_location, fs_location);
+        setUniform(BaseVec2i{ v0, v1 }, vs_location, fs_location);
     }
 
     // GLSL type: uvec2
     static void setUniform(const BaseVec2u& v, u32 vs_location, u32 fs_location);
     static void setUniform(u32 v0, u32 v1, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec2u){ v0, v1 }, vs_location, fs_location);
+        setUniform(BaseVec2u{ v0, v1 }, vs_location, fs_location);
     }
 
     // GLSL type: vec3
     static void setUniform(const BaseVec3f& v, u32 vs_location, u32 fs_location);
     static void setUniform(f32 v0, f32 v1, f32 v2, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec3f){ v0, v1, v2 }, vs_location, fs_location);
+        setUniform(BaseVec3f{ v0, v1, v2 }, vs_location, fs_location);
     }
 
     // GLSL type: ivec3
     static void setUniform(const BaseVec3i& v, u32 vs_location, u32 fs_location);
     static void setUniform(s32 v0, s32 v1, s32 v2, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec3i){ v0, v1, v2 }, vs_location, fs_location);
+        setUniform(BaseVec3i{ v0, v1, v2 }, vs_location, fs_location);
     }
 
     // GLSL type: uvec3
     static void setUniform(const BaseVec3u& v, u32 vs_location, u32 fs_location);
     static void setUniform(u32 v0, u32 v1, u32 v2, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec3u){ v0, v1, v2 }, vs_location, fs_location);
+        setUniform(BaseVec3u{ v0, v1, v2 }, vs_location, fs_location);
     }
 
     // GLSL type: vec4
     static void setUniform(const BaseVec4f& v, u32 vs_location, u32 fs_location);
     static void setUniform(f32 v0, f32 v1, f32 v2, f32 v3, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec4f){ v0, v1, v2, v3 }, vs_location, fs_location);
+        setUniform(BaseVec4f{ v0, v1, v2, v3 }, vs_location, fs_location);
     }
 
     // GLSL type: ivec4
     static void setUniform(const BaseVec4i& v, u32 vs_location, u32 fs_location);
     static void setUniform(s32 v0, s32 v1, s32 v2, s32 v3, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec4i){ v0, v1, v2, v3 }, vs_location, fs_location);
+        setUniform(BaseVec4i{ v0, v1, v2, v3 }, vs_location, fs_location);
     }
 
     // GLSL type: uvec4
     static void setUniform(const BaseVec4u& v, u32 vs_location, u32 fs_location);
     static void setUniform(u32 v0, u32 v1, u32 v2, u32 v3, u32 vs_location, u32 fs_location)
     {
-        setUniform((BaseVec4u){ v0, v1, v2, v3 }, vs_location, fs_location);
+        setUniform(BaseVec4u{ v0, v1, v2, v3 }, vs_location, fs_location);
     }
 
     // GLSL type: mtx2

@@ -59,7 +59,7 @@ static_assert(sizeof(s64) == sizeof(u64) && sizeof(u64) == 8);
 static_assert(sizeof(f32) == 4);
 static_assert(sizeof(f64) == 8);
 
-#if !(RIO_IS_CAFE || defined(BOOL))
+#if !RIO_IS_CAFE && !defined(BOOL) && !defined(_MSC_VER)
     #define BOOL int
 #endif
 
@@ -72,7 +72,12 @@ static_assert(sizeof(f64) == 8);
         #else
             #include <stdio.h>
         #endif
-        #define RIO_LOG(FMT, ARGS...) printf(FMT, ## ARGS)
+        #ifdef _MSC_VER
+            #define RIO_LOG(FMT, ...) printf(FMT, __VA_ARGS__)
+        #else
+            #define RIO_LOG(FMT, ARGS...) printf(FMT, ##ARGS)
+        #endif
+
     #elif RIO_IS_CAFE
         #include <coreinit/debug.h>
 

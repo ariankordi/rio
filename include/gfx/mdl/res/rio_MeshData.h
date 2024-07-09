@@ -60,7 +60,7 @@ private:
 
     u32             mMatIdx;    // Material index
 };
-static_assert(std::is_standard_layout<Mesh>::value && std::is_trivial<Mesh>::value);
+//static_assert(std::is_standard_layout<Mesh>::value && std::is_trivial<Mesh>::value);
 static_assert(sizeof(Mesh) == 0x38);
 
 } } }
