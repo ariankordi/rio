@@ -156,120 +156,244 @@ bool Window::foregroundAcquire_()
         GX2SetDRCScale(drc_width, drc_height);
     }
 
-    // Initialize color buffer
-    mNativeWindow.mColorBuffer.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
-    mNativeWindow.mColorBuffer.surface.width = mWidth;
-    mNativeWindow.mColorBuffer.surface.height = mHeight;
-    mNativeWindow.mColorBuffer.surface.depth = 1;
-    mNativeWindow.mColorBuffer.surface.mipLevels = 1;
-    mNativeWindow.mColorBuffer.surface.format = GX2_SURFACE_FORMAT_UNORM_R8_G8_B8_A8;
-    mNativeWindow.mColorBuffer.surface.aa = GX2_AA_MODE1X;
-    mNativeWindow.mColorBuffer.surface.use = GX2_SURFACE_USE_TEXTURE_COLOR_BUFFER_TV;
-    mNativeWindow.mColorBuffer.surface.mipmaps = nullptr;
-    mNativeWindow.mColorBuffer.surface.tileMode = GX2_TILE_MODE_DEFAULT;
-    mNativeWindow.mColorBuffer.surface.swizzle = 0;
-    mNativeWindow.mColorBuffer.viewMip = 0;
-    mNativeWindow.mColorBuffer.viewFirstSlice = 0;
-    mNativeWindow.mColorBuffer.viewNumSlices = 1;
-    GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mColorBuffer.surface);
-    GX2InitColorBufferRegs(&mNativeWindow.mColorBuffer);
+    // Initialize TV color buffer
+    {
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.width = mWidth;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.height = mHeight;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.depth = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.mipLevels = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.format = GX2_SURFACE_FORMAT_UNORM_R8_G8_B8_A8;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.aa = GX2_AA_MODE1X;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.use = GX2_SURFACE_USE_TEXTURE_COLOR_BUFFER_TV;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.mipmaps = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.tileMode = GX2_TILE_MODE_DEFAULT;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.swizzle = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.viewMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.viewNumSlices = 1;
+        GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface);
+        GX2InitColorBufferRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer);
 
-    // Allocate color buffer data
-    mNativeWindow.mpColorBufferImageData = MEMAllocFromFrmHeapEx(
-        mNativeWindow.mHeapHandle_MEM1,
-        mNativeWindow.mColorBuffer.surface.imageSize, // Data byte size
-        mNativeWindow.mColorBuffer.surface.alignment  // Required alignment
-    );
+        // Allocate color buffer data
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpColorBufferImageData = MEMAllocFromFrmHeapEx(
+            mNativeWindow.mHeapHandle_MEM1,
+            mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.imageSize, // Data byte size
+            mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.alignment  // Required alignment
+        );
 
-    if (!mNativeWindow.mpColorBufferImageData)
-        return false;
+        if (!mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpColorBufferImageData)
+            return false;
 
-    mNativeWindow.mColorBuffer.surface.image = mNativeWindow.mpColorBufferImageData;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.image = mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpColorBufferImageData;
 
-    // Flush allocated buffer from CPU cache
-    GX2Invalidate(GX2_INVALIDATE_MODE_CPU_TEXTURE, mNativeWindow.mpColorBufferImageData, mNativeWindow.mColorBuffer.surface.imageSize);
+        // Flush allocated buffer from CPU cache
+        GX2Invalidate(GX2_INVALIDATE_MODE_CPU_TEXTURE, mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpColorBufferImageData, mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface.imageSize);
 
-    // Copy color buffer to a texture
-    mNativeWindow.mColorBufferTexture.surface = mNativeWindow.mColorBuffer.surface;
-    mNativeWindow.mColorBufferTexture.surface.use = GX2_SURFACE_USE_TEXTURE;
-    mNativeWindow.mColorBufferTexture.viewFirstMip = 0;
-    mNativeWindow.mColorBufferTexture.viewNumMips = 1;
-    mNativeWindow.mColorBufferTexture.viewFirstSlice = 0;
-    mNativeWindow.mColorBufferTexture.viewNumSlices = 1;
-    mNativeWindow.mColorBufferTexture.compMap = 0x00010203;
-    GX2InitTextureRegs(&mNativeWindow.mColorBufferTexture);
+        // Copy color buffer to a texture
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture.surface = mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer.surface;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture.surface.use = GX2_SURFACE_USE_TEXTURE;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture.viewFirstMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture.viewNumMips = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture.viewNumSlices = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture.compMap = 0x00010203;
+        GX2InitTextureRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBufferTexture);
+    }
+    
+    // Initialize TV depth buffer
+    {
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.width = mWidth;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.height = mHeight;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.depth = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.mipLevels = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.format = GX2_SURFACE_FORMAT_FLOAT_D24_S8;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.aa = GX2_AA_MODE1X;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.use = GX2_SURFACE_USE_DEPTH_BUFFER;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.mipmaps = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.tileMode = GX2_TILE_MODE_DEFAULT;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.swizzle = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.viewMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.viewNumSlices = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.hiZPtr = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.hiZSize = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.depthClear = 1.0f;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.stencilClear = 0;
+        GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface);
+        GX2InitDepthBufferRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer);
 
-    // Initialize depth buffer
-    mNativeWindow.mDepthBuffer.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
-    mNativeWindow.mDepthBuffer.surface.width = mWidth;
-    mNativeWindow.mDepthBuffer.surface.height = mHeight;
-    mNativeWindow.mDepthBuffer.surface.depth = 1;
-    mNativeWindow.mDepthBuffer.surface.mipLevels = 1;
-    mNativeWindow.mDepthBuffer.surface.format = GX2_SURFACE_FORMAT_FLOAT_D24_S8;
-    mNativeWindow.mDepthBuffer.surface.aa = GX2_AA_MODE1X;
-    mNativeWindow.mDepthBuffer.surface.use = GX2_SURFACE_USE_DEPTH_BUFFER;
-    mNativeWindow.mDepthBuffer.surface.mipmaps = nullptr;
-    mNativeWindow.mDepthBuffer.surface.tileMode = GX2_TILE_MODE_DEFAULT;
-    mNativeWindow.mDepthBuffer.surface.swizzle = 0;
-    mNativeWindow.mDepthBuffer.viewMip = 0;
-    mNativeWindow.mDepthBuffer.viewFirstSlice = 0;
-    mNativeWindow.mDepthBuffer.viewNumSlices = 1;
-    mNativeWindow.mDepthBuffer.hiZPtr = nullptr;
-    mNativeWindow.mDepthBuffer.hiZSize = 0;
-    mNativeWindow.mDepthBuffer.depthClear = 1.0f;
-    mNativeWindow.mDepthBuffer.stencilClear = 0;
-    GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mDepthBuffer.surface);
-    GX2InitDepthBufferRegs(&mNativeWindow.mDepthBuffer);
+        // Allocate depth buffer data
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferImageData = MEMAllocFromFrmHeapEx(
+            mNativeWindow.mHeapHandle_MEM1,
+            mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.imageSize, // Data byte size
+            mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.alignment  // Required alignment
+        );
 
-    // Allocate depth buffer data
-    mNativeWindow.mpDepthBufferImageData = MEMAllocFromFrmHeapEx(
-        mNativeWindow.mHeapHandle_MEM1,
-        mNativeWindow.mDepthBuffer.surface.imageSize, // Data byte size
-        mNativeWindow.mDepthBuffer.surface.alignment  // Required alignment
-    );
+        if (!mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferImageData)
+            return false;
 
-    if (!mNativeWindow.mpDepthBufferImageData)
-        return false;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.image = mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferImageData;
 
-    mNativeWindow.mDepthBuffer.surface.image = mNativeWindow.mpDepthBufferImageData;
+        // Flush allocated buffer from CPU cache
+        GX2Invalidate(GX2_INVALIDATE_MODE_CPU, mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferImageData, mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBuffer.surface.imageSize);
 
-    // Flush allocated buffer from CPU cache
-    GX2Invalidate(GX2_INVALIDATE_MODE_CPU, mNativeWindow.mpDepthBufferImageData, mNativeWindow.mDepthBuffer.surface.imageSize);
+        // Initialize depth buffer texture
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.width = mWidth;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.height = mHeight;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.depth = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.mipLevels = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.format = GX2_SURFACE_FORMAT_FLOAT_R32;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.aa = GX2_AA_MODE1X;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.use = GX2_SURFACE_USE_TEXTURE;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.mipmaps = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.tileMode = GX2_TILE_MODE_DEFAULT;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.swizzle = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.viewFirstMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.viewNumMips = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.viewNumSlices = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.compMap = 0x00040405;
+        GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface);
+        GX2InitTextureRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture);
 
-    // Initialize depth buffer texture
-    mNativeWindow.mDepthBufferTexture.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
-    mNativeWindow.mDepthBufferTexture.surface.width = mWidth;
-    mNativeWindow.mDepthBufferTexture.surface.height = mHeight;
-    mNativeWindow.mDepthBufferTexture.surface.depth = 1;
-    mNativeWindow.mDepthBufferTexture.surface.mipLevels = 1;
-    mNativeWindow.mDepthBufferTexture.surface.format = GX2_SURFACE_FORMAT_FLOAT_R32;
-    mNativeWindow.mDepthBufferTexture.surface.aa = GX2_AA_MODE1X;
-    mNativeWindow.mDepthBufferTexture.surface.use = GX2_SURFACE_USE_TEXTURE;
-    mNativeWindow.mDepthBufferTexture.surface.mipmaps = nullptr;
-    mNativeWindow.mDepthBufferTexture.surface.tileMode = GX2_TILE_MODE_DEFAULT;
-    mNativeWindow.mDepthBufferTexture.surface.swizzle = 0;
-    mNativeWindow.mDepthBufferTexture.viewFirstMip = 0;
-    mNativeWindow.mDepthBufferTexture.viewNumMips = 1;
-    mNativeWindow.mDepthBufferTexture.viewFirstSlice = 0;
-    mNativeWindow.mDepthBufferTexture.viewNumSlices = 1;
-    mNativeWindow.mDepthBufferTexture.compMap = 0x00040405;
-    GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mDepthBufferTexture.surface);
-    GX2InitTextureRegs(&mNativeWindow.mDepthBufferTexture);
+        // Allocate depth buffer texture data
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferTextureImageData = MEMAllocFromFrmHeapEx(
+            mNativeWindow.mHeapHandle_MEM1,
+            mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.imageSize, // Data byte size
+            mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.alignment  // Required alignment
+        );
 
-    // Allocate depth buffer texture data
-    mNativeWindow.mpDepthBufferTextureImageData = MEMAllocFromFrmHeapEx(
-        mNativeWindow.mHeapHandle_MEM1,
-        mNativeWindow.mDepthBufferTexture.surface.imageSize, // Data byte size
-        mNativeWindow.mDepthBufferTexture.surface.alignment  // Required alignment
-    );
+        if (!mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferTextureImageData)
+            return false;
 
-    if (!mNativeWindow.mpDepthBufferTextureImageData)
-        return false;
+        mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.image = mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferTextureImageData;
 
-    mNativeWindow.mDepthBufferTexture.surface.image = mNativeWindow.mpDepthBufferTextureImageData;
+        // Flush allocated buffer from CPU cache
+        GX2Invalidate(GX2_INVALIDATE_MODE_CPU_TEXTURE, mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferTextureImageData, mNativeWindow.mBufferData[IMAGE_TYPE_TV].mDepthBufferTexture.surface.imageSize);
+    }
 
-    // Flush allocated buffer from CPU cache
-    GX2Invalidate(GX2_INVALIDATE_MODE_CPU_TEXTURE, mNativeWindow.mpDepthBufferTextureImageData, mNativeWindow.mDepthBufferTexture.surface.imageSize);
+    // Initialize DRC color buffer
+    {
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.width = mWidth;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.height = mHeight;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.depth = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.mipLevels = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.format = GX2_SURFACE_FORMAT_UNORM_R8_G8_B8_A8;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.aa = GX2_AA_MODE1X;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.use = GX2_SURFACE_USE_TEXTURE_COLOR_BUFFER_TV;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.mipmaps = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.tileMode = GX2_TILE_MODE_DEFAULT;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.swizzle = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.viewMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.viewNumSlices = 1;
+        GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface);
+        GX2InitColorBufferRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer);
+
+        // Allocate color buffer data
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpColorBufferImageData = MEMAllocFromFrmHeapEx(
+            mNativeWindow.mHeapHandle_MEM1,
+            mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.imageSize, // Data byte size
+            mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.alignment  // Required alignment
+        );
+
+        if (!mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpColorBufferImageData)
+            return false;
+
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.image = mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpColorBufferImageData;
+
+        // Flush allocated buffer from CPU cache
+        GX2Invalidate(GX2_INVALIDATE_MODE_CPU_TEXTURE, mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpColorBufferImageData, mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface.imageSize);
+
+        // Copy color buffer to a texture
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture.surface = mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer.surface;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture.surface.use = GX2_SURFACE_USE_TEXTURE;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture.viewFirstMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture.viewNumMips = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture.viewNumSlices = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture.compMap = 0x00010203;
+        GX2InitTextureRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBufferTexture);
+    }
+
+    // Initialize DRC depth buffer
+    {
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.width = mWidth;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.height = mHeight;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.depth = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.mipLevels = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.format = GX2_SURFACE_FORMAT_FLOAT_D24_S8;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.aa = GX2_AA_MODE1X;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.use = GX2_SURFACE_USE_DEPTH_BUFFER;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.mipmaps = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.tileMode = GX2_TILE_MODE_DEFAULT;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.swizzle = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.viewMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.viewNumSlices = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.hiZPtr = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.hiZSize = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.depthClear = 1.0f;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.stencilClear = 0;
+        GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface);
+        GX2InitDepthBufferRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer);
+
+        // Allocate depth buffer data
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferImageData = MEMAllocFromFrmHeapEx(
+            mNativeWindow.mHeapHandle_MEM1,
+            mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.imageSize, // Data byte size
+            mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.alignment  // Required alignment
+        );
+
+        if (!mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferImageData)
+            return false;
+
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.image = mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferImageData;
+
+        // Flush allocated buffer from CPU cache
+        GX2Invalidate(GX2_INVALIDATE_MODE_CPU, mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferImageData, mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBuffer.surface.imageSize);
+
+        // Initialize depth buffer texture
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.dim = GX2_SURFACE_DIM_TEXTURE_2D;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.width = mWidth;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.height = mHeight;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.depth = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.mipLevels = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.format = GX2_SURFACE_FORMAT_FLOAT_R32;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.aa = GX2_AA_MODE1X;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.use = GX2_SURFACE_USE_TEXTURE;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.mipmaps = nullptr;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.tileMode = GX2_TILE_MODE_DEFAULT;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.swizzle = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.viewFirstMip = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.viewNumMips = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.viewFirstSlice = 0;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.viewNumSlices = 1;
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.compMap = 0x00040405;
+        GX2CalcSurfaceSizeAndAlignment(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface);
+        GX2InitTextureRegs(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture);
+
+        // Allocate depth buffer texture data
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferTextureImageData = MEMAllocFromFrmHeapEx(
+            mNativeWindow.mHeapHandle_MEM1,
+            mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.imageSize, // Data byte size
+            mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.alignment  // Required alignment
+        );
+
+        if (!mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferTextureImageData)
+            return false;
+
+        mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.image = mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferTextureImageData;
+
+        // Flush allocated buffer from CPU cache
+        GX2Invalidate(GX2_INVALIDATE_MODE_CPU_TEXTURE, mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferTextureImageData, mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mDepthBufferTexture.surface.imageSize);
+    }
+    
 
     // Enable TV and DRC
     GX2SetTVEnable(true);
@@ -279,8 +403,8 @@ bool Window::foregroundAcquire_()
     if (mNativeWindow.mIsRunning)
     {
         GX2SetContextState(mNativeWindow.mpContextState);
-        GX2SetColorBuffer(&mNativeWindow.mColorBuffer, GX2_RENDER_TARGET_0);
-        GX2SetDepthBuffer(&mNativeWindow.mDepthBuffer);
+        GX2SetColorBuffer(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mColorBuffer, GX2_RENDER_TARGET_0);
+        GX2SetDepthBuffer(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer);
     }
 
     // Initialize GQR2 to GQR5
@@ -310,9 +434,14 @@ void Window::foregroundRelease_()
         MEMFreeToFrmHeap(mNativeWindow.mHeapHandle_MEM1, MEM_FRM_HEAP_FREE_ALL);
         mNativeWindow.mHeapHandle_MEM1 = nullptr;
     }
-    mNativeWindow.mpColorBufferImageData = nullptr;
-    mNativeWindow.mpDepthBufferImageData = nullptr;
-    mNativeWindow.mpDepthBufferTextureImageData = nullptr;
+
+    mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpColorBufferImageData = nullptr;
+    mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferImageData = nullptr;
+    mNativeWindow.mBufferData[IMAGE_TYPE_TV].mpDepthBufferTextureImageData = nullptr;
+
+    mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpColorBufferImageData = nullptr;
+    mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferImageData = nullptr;
+    mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mpDepthBufferTextureImageData = nullptr;
 
 #ifdef RIO_DEBUG
     WHBLogCafeDeinit();
@@ -369,7 +498,7 @@ bool Window::initialize_()
     GX2SetupContextStateEx(mNativeWindow.mpContextState, false);
 
     // Make context of window current
-    makeContextCurrent();
+    makeContextCurrent(IMAGE_TYPE_TV);
 
     // Set swap interval to 1 by default
     setSwapInterval(1);
@@ -412,11 +541,16 @@ void Window::terminate_()
     _Exit(-1);
 }
 
-void Window::makeContextCurrent() const
+void Window::makeContextCurrent(ImageType type) const
 {
+    if (type == IMAGE_TYPE_DEFAULT)
+        type = mNativeWindow.mCurrentImageType;
+
     GX2SetContextState(mNativeWindow.mpContextState);
-    GX2SetColorBuffer(&mNativeWindow.mColorBuffer, GX2_RENDER_TARGET_0);
-    GX2SetDepthBuffer(&mNativeWindow.mDepthBuffer);
+    GX2SetColorBuffer(&mNativeWindow.mBufferData[type].mColorBuffer, GX2_RENDER_TARGET_0);
+    GX2SetDepthBuffer(&mNativeWindow.mBufferData[type].mDepthBuffer);
+
+    mNativeWindow.mCurrentImageType = type;
 }
 
 void Window::setSwapInterval(u32 swap_interval)
@@ -436,8 +570,8 @@ void Window::swapBuffers() const
     GX2Flush();
 
     // Copy the color buffer to the TV and DRC scan buffers
-    GX2CopyColorBufferToScanBuffer(&mNativeWindow.mColorBuffer, GX2_SCAN_TARGET_TV);
-    GX2CopyColorBufferToScanBuffer(&mNativeWindow.mColorBuffer, GX2_SCAN_TARGET_DRC);
+    GX2CopyColorBufferToScanBuffer(&mNativeWindow.mBufferData[IMAGE_TYPE_TV].mColorBuffer, GX2_SCAN_TARGET_TV);
+    GX2CopyColorBufferToScanBuffer(&mNativeWindow.mBufferData[IMAGE_TYPE_DRC].mColorBuffer, GX2_SCAN_TARGET_DRC);
     // Flip
     GX2SwapScanBuffers();
 
@@ -478,7 +612,7 @@ void Window::clearColor(f32 r, f32 g, f32 b, f32 a)
 {
     // Clear using the given color
     // Does not need a current context to be set
-    GX2ClearColor(&mNativeWindow.mColorBuffer, r, g, b, a);
+    GX2ClearColor(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mColorBuffer, r, g, b, a);
 
     // GX2ClearColor invalidates the current context and the window context
     // must be made current again
@@ -489,10 +623,10 @@ void Window::clearDepth()
 {
     // Clear
     // Does not need a current context to be set
-    GX2ClearDepthStencilEx(&mNativeWindow.mDepthBuffer,
-                           mNativeWindow.mDepthBuffer.depthClear,
-                           0,
-                           GX2_CLEAR_FLAGS_DEPTH);
+    GX2ClearDepthStencilEx(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer,
+        mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer.depthClear,
+        0,
+        GX2_CLEAR_FLAGS_DEPTH);
 
     // GX2ClearDepthStencilEx invalidates the current context and the window context
     // must be made current again
@@ -503,10 +637,10 @@ void Window::clearDepth(f32 depth)
 {
     // Clear using the given depth
     // Does not need a current context to be set
-    GX2ClearDepthStencilEx(&mNativeWindow.mDepthBuffer,
-                           depth,
-                           0,
-                           GX2_CLEAR_FLAGS_DEPTH);
+    GX2ClearDepthStencilEx(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer,
+        depth,
+        0,
+        GX2_CLEAR_FLAGS_DEPTH);
 
     // GX2ClearDepthStencilEx invalidates the current context and the window context
     // must be made current again
@@ -517,10 +651,10 @@ void Window::clearStencil()
 {
     // Clear
     // Does not need a current context to be set
-    GX2ClearDepthStencilEx(&mNativeWindow.mDepthBuffer,
-                           0,
-                           mNativeWindow.mDepthBuffer.stencilClear,
-                           GX2_CLEAR_FLAGS_STENCIL);
+    GX2ClearDepthStencilEx(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer,
+        0,
+        mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer.stencilClear,
+        GX2_CLEAR_FLAGS_STENCIL);
 
     // GX2ClearDepthStencilEx invalidates the current context and the window context
     // must be made current again
@@ -531,7 +665,7 @@ void Window::clearStencil(u8 stencil)
 {
     // Clear using the given stencil
     // Does not need a current context to be set
-    GX2ClearDepthStencilEx(&mNativeWindow.mDepthBuffer,
+    GX2ClearDepthStencilEx(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer,
                            0,
                            stencil,
                            GX2_CLEAR_FLAGS_STENCIL);
@@ -545,9 +679,9 @@ void Window::clearDepthStencil()
 {
     // Clear
     // Does not need a current context to be set
-    GX2ClearDepthStencilEx(&mNativeWindow.mDepthBuffer,
-                           mNativeWindow.mDepthBuffer.depthClear,
-                           mNativeWindow.mDepthBuffer.stencilClear,
+    GX2ClearDepthStencilEx(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer,
+                           mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer.depthClear,
+                           mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer.stencilClear,
                            (GX2ClearFlags)(GX2_CLEAR_FLAGS_DEPTH |
                                            GX2_CLEAR_FLAGS_STENCIL));
 
@@ -560,7 +694,7 @@ void Window::clearDepthStencil(f32 depth, u8 stencil)
 {
     // Clear using the given depth-stencil
     // Does not need a current context to be set
-    GX2ClearDepthStencilEx(&mNativeWindow.mDepthBuffer,
+    GX2ClearDepthStencilEx(&mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer,
                            depth,
                            stencil,
                            (GX2ClearFlags)(GX2_CLEAR_FLAGS_DEPTH |
@@ -573,16 +707,16 @@ void Window::clearDepthStencil(f32 depth, u8 stencil)
 
 void Window::updateDepthBufferTexture_()
 {
-    GX2Invalidate(GX2_INVALIDATE_MODE_DEPTH_BUFFER, mNativeWindow.mDepthBuffer.surface.image, mNativeWindow.mDepthBuffer.surface.imageSize);
+    GX2Invalidate(GX2_INVALIDATE_MODE_DEPTH_BUFFER, mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer.surface.image, mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer.surface.imageSize);
 
     GX2ConvertDepthBufferToTextureSurface(
-        &mNativeWindow.mDepthBuffer,
-        &mNativeWindow.mDepthBufferTexture.surface,
+        &mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBuffer,
+        &mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBufferTexture.surface,
         0,
         0
     );
 
-    GX2Invalidate(GX2_INVALIDATE_MODE_TEXTURE, mNativeWindow.mDepthBufferTexture.surface.image, mNativeWindow.mDepthBufferTexture.surface.imageSize);
+    GX2Invalidate(GX2_INVALIDATE_MODE_TEXTURE, mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBufferTexture.surface.image, mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBufferTexture.surface.imageSize);
 }
 
 }

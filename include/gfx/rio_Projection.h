@@ -121,19 +121,19 @@ public:
     f32 getNear() const { return mNear; }
     f32 getFar() const { return mFar; }
     f32 top() const { return mTop; }
+    f32 right() const { return mRight; }
     f32 bottom() const { return mBottom; }
     f32 left() const { return mLeft; }
-    f32 right() const { return mRight; }
 
-    void setNear(f32 near)
+    void setNear(f32 nearPlane)
     {
-        mNear = near;
+        mNear = nearPlane;
         mDirty = true;
     }
 
-    void setFar(f32 far)
+    void setFar(f32 farPlane)
     {
-        mFar = far;
+        mFar = farPlane;
         mDirty = true;
     }
 

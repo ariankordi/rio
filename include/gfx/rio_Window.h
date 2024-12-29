@@ -53,7 +53,11 @@ public:
     }
 
     // Make the context of this window the current context
+#if RIO_IS_WIN
     void makeContextCurrent() const;
+#else
+    void makeContextCurrent(ImageType type = IMAGE_TYPE_DEFAULT) const;
+#endif
 
     // Set the swap interval (how many refreshes to wait before flipping the scan buffers)
     // Parameters:
@@ -101,7 +105,7 @@ public:
     NativeTexture2DHandle getWindowColorBufferTexture() const
     {
 #if RIO_IS_CAFE
-        return &mNativeWindow.mColorBufferTexture;
+        return &mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mColorBufferTexture;
 #elif RIO_IS_WIN
         return mNativeWindow.mColorBufferTextureHandle;
 #endif
@@ -119,6 +123,7 @@ public:
     void updateDepthBufferTexture()
     {
         updateDepthBufferTexture_();
+
         makeContextCurrent();
     }
 
@@ -128,7 +133,7 @@ public:
             return RIO_NATIVE_TEXTURE_2D_HANDLE_NULL;
 
 #if RIO_IS_CAFE
-        return &mNativeWindow.mDepthBufferTexture;
+        return &mNativeWindow.mBufferData[mNativeWindow.mCurrentImageType].mDepthBufferTexture;
 #elif RIO_IS_WIN
         return mNativeWindow.mDepthBufferTextureHandle;
 #endif
