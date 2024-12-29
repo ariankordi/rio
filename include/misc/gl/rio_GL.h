@@ -16,7 +16,7 @@
     #endif // RIO_USE_GLEW
 #endif // RIO_NO_GL_LOADER
 
-#ifndef RIO_NO_GLFW_CALLS
+#if !defined(RIO_NO_GLFW_CALLS) && !defined(RIO_NO_GLFW_IMPORT)
     #define GLFW_INCLUDE_NONE
     #include <GLFW/glfw3.h>
 #else
