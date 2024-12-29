@@ -270,9 +270,9 @@ bool RenderBuffer::read(
         bindFBO_();
         p_color_target->bind(color_target_index);
 #if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
-        glReadBuffer(GL_COLOR_ATTACHMENT0 + color_target_index);
+        RIO_GL_CALL(glReadBuffer(GL_COLOR_ATTACHMENT0 + color_target_index));
 #endif
-        glReadPixels(0, 0, width, height, native_format.format, native_format.type, pixels);
+        RIO_GL_CALL(glReadPixels(0, 0, width, height, native_format.format, native_format.type, pixels));
 #endif
     }
 #ifndef RIO_NO_GLFW_CALLS
