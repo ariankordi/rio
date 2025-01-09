@@ -421,7 +421,7 @@ bool TextureFormatUtil::getNativeTextureFormat(
         nativeFormat.internalformat = GL_BGRA_EXT;
         nativeFormat.format = GL_BGRA_EXT;
 #else
-        nativeFormat.internalformat = GL_BGRA;
+        nativeFormat.internalformat = GL_RGBA8;
         nativeFormat.format = GL_BGRA;
 #endif
         nativeFormat.type = GL_UNSIGNED_BYTE;
