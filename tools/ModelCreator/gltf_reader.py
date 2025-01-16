@@ -3,7 +3,9 @@ from pygltflib import GLTF2
 from structs import Vertex
 from structs import Mesh
 
-def read_gltf(path):
+def read_gltf(path, bone_index_hack=False):
+    if bone_index_hack:
+        print("bone index hack enabled, JOINTS_0 mapped to texcoord in final rmdl")
     meshes = []
 
     gltf = GLTF2().load(path)
@@ -35,12 +37,25 @@ def read_gltf(path):
         normal_buffer_view = bufferViews[normal_accessor.bufferView]
         normals = [struct.unpack_from("<3f", buffer, normal_buffer_view.byteOffset + i * 12) for i in range(normal_count)]
 
-        # Reading texture coordinates
-        tex_coord_buffer_index = primitive.attributes.TEXCOORD_0
-        tex_coord_accessor = accessors[tex_coord_buffer_index]
-        tex_coord_count = tex_coord_accessor.count
-        tex_coord_buffer_view = bufferViews[tex_coord_accessor.bufferView]
-        tex_coords = [struct.unpack_from("<2f", buffer, tex_coord_buffer_view.byteOffset + i * 8) for i in range(tex_coord_count)]
+        if bone_index_hack:
+            # HACK: Read JOINTS_0 as vec2 float (x mapped, y = 0)
+            try:
+                joints_buffer_index = primitive.attributes.JOINTS_0
+                joints_accessor = accessors[joints_buffer_index]
+                joints_count = joints_accessor.count
+                joints_buffer_view = bufferViews[joints_accessor.bufferView]
+                tex_coords = [(struct.unpack_from("<B", buffer, joints_buffer_view.byteOffset + i * 4)[0], 0.0)
+                              for i in range(joints_count)]
+            except (AttributeError, KeyError):
+                # If JOINTS_0 is missing, default to zero values
+                tex_coords = [(0.0, 0.0)] * position_count
+        else:
+            # Reading texture coordinates
+            tex_coord_buffer_index = primitive.attributes.TEXCOORD_0
+            tex_coord_accessor = accessors[tex_coord_buffer_index]
+            tex_coord_count = tex_coord_accessor.count
+            tex_coord_buffer_view = bufferViews[tex_coord_accessor.bufferView]
+            tex_coords = [struct.unpack_from("<2f", buffer, tex_coord_buffer_view.byteOffset + i * 8) for i in range(tex_coord_count)]
 
         vertices = []
         for pos, tex_coord, normal in zip(positions, tex_coords, normals):

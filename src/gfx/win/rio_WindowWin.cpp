@@ -1,4 +1,4 @@
-#ifndef RIO_NO_GLAD_IMPLEMENTATION
+#if !defined(RIO_NO_GLAD_IMPLEMENTATION) && !defined(RIO_USE_GLEW)
     #ifdef RIO_GLES
         #define GLAD_EGL_IMPLEMENTATION
         #define GLAD_GLES2_IMPLEMENTATION
