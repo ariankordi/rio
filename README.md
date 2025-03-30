@@ -6,7 +6,7 @@ As such, I'm not personally invested in using this for games. However, there are
 * Support for [non-Windows](https://github.com/ariankordi/rio/commit/6bc61c8f93b3371376289213eda5430061a0a1c3), [MSVC](https://github.com/ariankordi/rio/commit/a4bd3f2c70f4f977b208cedf38796069dc645548) building, and [a macOS fix](https://github.com/ariankordi/rio/commit/66c2ba133e503095b393fbfb33365c6c040f2683).
 * Ability to [hide the window](https://github.com/ariankordi/rio/commit/a21838d8ba464ae06c672cf1796ef7a2ace24105) and use [OSMesa](https://github.com/ariankordi/rio/commit/5207fe86b8997333167022efede5e018c4793b12) for off-screen rendering.
 * Changes to support [OpenGL ES 3.0](https://github.com/ariankordi/rio/commit/d5fac352ca2422392b1bf7fd770e8764de672ec2) with the `RIO_GLES` definition.
-* Instead of GLEW, my fork is using GLAD, which is embedded as a header so that there is no need to manually include it. [But you can still use GLAD, or no GL loader at all](https://github.com/ariankordi/rio/commit/63071e1bfad00b8e45e922855e56ff1968b3ada3).
+* Instead of GLEW, my fork is using GLAD, which is embedded as a header so that there is no need to manually include it. [But you can still use GLEW, or no GL loader at all](https://github.com/ariankordi/rio/commit/63071e1bfad00b8e45e922855e56ff1968b3ada3).
 
 No intuitive build instructions for now, sorry. Best I can provide is [the FFL-Testing Makefile](https://github.com/ariankordi/FFL-Testing/blob/renderer-server-prototype/Makefile).
 

@@ -176,7 +176,9 @@ bool TextureFormatUtil::getNativeTextureFormat(
 {
     switch (format)
     {
+
 #if defined(RIO_GLES) && !defined(GL_ES_VERSION_3_0)
+    // Formats only supported in OpenGL ES 2.0.
     case TEXTURE_FORMAT_R8_UNORM:
         nativeFormat.internalformat = GL_LUMINANCE;
         nativeFormat.format = GL_LUMINANCE;
@@ -221,6 +223,7 @@ bool TextureFormatUtil::getNativeTextureFormat(
         return true;
 
 #else
+    // Formats for OpenGL 3.3, 4.x, ES 3.0
     case TEXTURE_FORMAT_R8_UNORM:
         nativeFormat.internalformat = GL_R8;
         nativeFormat.format = GL_RED;
@@ -332,11 +335,7 @@ bool TextureFormatUtil::getNativeTextureFormat(
         nativeFormat.type = 0;
         return true;
     case TEXTURE_FORMAT_BC1_SRGB:
-    #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-    #else
-        RIO_ASSERT(false);
-    #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
@@ -346,11 +345,7 @@ bool TextureFormatUtil::getNativeTextureFormat(
         nativeFormat.type = 0;
         return true;
     case TEXTURE_FORMAT_BC2_SRGB:
-    #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-    #else
-        RIO_ASSERT(false);
-    #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
@@ -360,11 +355,7 @@ bool TextureFormatUtil::getNativeTextureFormat(
         nativeFormat.type = 0;
         return true;
     case TEXTURE_FORMAT_BC3_SRGB:
-    #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-    #else
-        RIO_ASSERT(false);
-    #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
@@ -372,7 +363,7 @@ bool TextureFormatUtil::getNativeTextureFormat(
     #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_RED_RGTC1;
     #else
-        RIO_ASSERT(false);
+        nativeFormat.internalformat = GL_COMPRESSED_RED_RGTC1_EXT;
     #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
@@ -381,7 +372,7 @@ bool TextureFormatUtil::getNativeTextureFormat(
     #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_SIGNED_RED_RGTC1;
     #else
-        RIO_ASSERT(false);
+        nativeFormat.internalformat = GL_COMPRESSED_SIGNED_RED_RGTC1_EXT;
     #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;

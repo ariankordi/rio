@@ -5,7 +5,7 @@
 
 #ifndef RIO_NO_GL_LOADER
     #if RIO_USE_GLEW
-            #include <GL/glew.h>
+        #include <GL/glew.h>
     #else
         // use GLAD by default
         #ifdef RIO_GLES

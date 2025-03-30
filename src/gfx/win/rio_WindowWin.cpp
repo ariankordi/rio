@@ -245,14 +245,14 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
     setSwapInterval(1);
 
     // Check clip control extension
-    #ifndef RIO_NO_CLIP_CONTROL
+#ifndef RIO_NO_CLIP_CONTROL
 #if RIO_USE_GLEW
     if (!GLEW_VERSION_4_5 && !GLEW_ARB_clip_control)
 #else
     if (!(GLAD_GL_VERSION_4_5 || GLAD_GL_ARB_clip_control))
 #endif // RIO_USE_GLEW
     {
-        printf("Required OpenGL extensions not supported: GL_VERSION_4_5, GL_ARB_clip_control. Continuing anyway.\n");
+        RIO_LOG("Required OpenGL extensions not supported: GL_VERSION_4_5, GL_ARB_clip_control. Continuing anyway.\n");
 
         /*terminate_();
         return false;*/
@@ -262,7 +262,7 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
         // Change coordinate-system to be compliant with GX2
         RIO_GL_CALL(glClipControl(GL_UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE));
     }
-    #endif
+#endif // RIO_NO_CLIP_CONTROL
 
     // The screen will now be rendered upside-down.
     // Therefore, we will render it to our own frame buffer, then render that
