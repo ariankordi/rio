@@ -1,6 +1,23 @@
 #include <gpu/rio_Texture.h>
 #include <misc/rio_MemUtil.h>
 
+#ifdef RIO_GLES
+    // bc4
+    #define GL_COMPRESSED_RED_RGTC1 GL_COMPRESSED_RED_RGTC1_EXT
+    #define GL_COMPRESSED_SIGNED_RED_RGTC1 GL_COMPRESSED_SIGNED_RED_RGTC1_EXT
+    // bc5
+    #define GL_COMPRESSED_RG_RGTC2 GL_COMPRESSED_RED_GREEN_RGTC2_EXT
+    #define GL_COMPRESSED_SIGNED_RG_RGTC2 GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT
+    // BGRA
+    #define GL_BGRA GL_BGRA_EXT
+
+    // what? internalformat BGRA is not valid on desktop GL,
+    // but internal format RGBA/RGBA8 not valid on opengl es 3.0
+    #define BGRA_INTERNAL_FORMAT GL_BGRA_EXT
+#else
+    #define BGRA_INTERNAL_FORMAT GL_RGBA8
+#endif
+
 namespace rio {
 
 u8 TextureFormatUtil::getPixelByteSize(TextureFormat format)
@@ -177,52 +194,6 @@ bool TextureFormatUtil::getNativeTextureFormat(
     switch (format)
     {
 
-#if defined(RIO_GLES) && !defined(GL_ES_VERSION_3_0)
-    // Formats only supported in OpenGL ES 2.0.
-    case TEXTURE_FORMAT_R8_UNORM:
-        nativeFormat.internalformat = GL_LUMINANCE;
-        nativeFormat.format = GL_LUMINANCE;
-        nativeFormat.type = GL_UNSIGNED_BYTE;
-        return true;
-
-    case TEXTURE_FORMAT_R8_G8_UNORM:
-        nativeFormat.internalformat = GL_LUMINANCE_ALPHA;
-        nativeFormat.format = GL_LUMINANCE_ALPHA;
-        nativeFormat.type = GL_UNSIGNED_BYTE;
-        return true;
-
-    case TEXTURE_FORMAT_R5_G6_B5_UNORM:
-        nativeFormat.internalformat = GL_RGB;
-        nativeFormat.format = GL_RGB;
-        nativeFormat.type = GL_UNSIGNED_SHORT_5_6_5;
-        return true;
-
-    case TEXTURE_FORMAT_R5_G5_B5_A1_UNORM:
-        nativeFormat.internalformat = GL_RGBA;
-        nativeFormat.format = GL_RGBA;
-        nativeFormat.type = GL_UNSIGNED_SHORT_5_5_5_1;
-        return true;
-
-    case TEXTURE_FORMAT_R4_G4_B4_A4_UNORM:
-        nativeFormat.internalformat = GL_RGBA;
-        nativeFormat.format = GL_RGBA;
-        nativeFormat.type = GL_UNSIGNED_SHORT_4_4_4_4;
-        return true;
-
-    case TEXTURE_FORMAT_R8_G8_B8_A8_UNORM:
-    case TEXTURE_FORMAT_R8_G8_B8_A8_SRGB:
-        nativeFormat.internalformat = GL_RGBA;
-        nativeFormat.format = GL_RGBA;
-        nativeFormat.type = GL_UNSIGNED_BYTE;
-        return true;
-
-    case DEPTH_TEXTURE_FORMAT_R16_UNORM:
-        nativeFormat.internalformat = GL_DEPTH_COMPONENT;
-        nativeFormat.format = GL_DEPTH_COMPONENT;
-        nativeFormat.type = GL_UNSIGNED_SHORT;
-        return true;
-
-#else
     // Formats for OpenGL 3.3, 4.x, ES 3.0
     case TEXTURE_FORMAT_R8_UNORM:
         nativeFormat.internalformat = GL_R8;
@@ -359,39 +330,24 @@ bool TextureFormatUtil::getNativeTextureFormat(
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
+
     case TEXTURE_FORMAT_BC4_UNORM:
-    #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_RED_RGTC1;
-    #else
-        nativeFormat.internalformat = GL_COMPRESSED_RED_RGTC1_EXT;
-    #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
     case TEXTURE_FORMAT_BC4_SNORM:
-    #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_SIGNED_RED_RGTC1;
-    #else
-        nativeFormat.internalformat = GL_COMPRESSED_SIGNED_RED_RGTC1_EXT;
-    #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
     case TEXTURE_FORMAT_BC5_UNORM:
-    #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_RG_RGTC2;
-    #else
-        RIO_ASSERT(false);
-    #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
     case TEXTURE_FORMAT_BC5_SNORM:
-    #ifndef RIO_GLES
         nativeFormat.internalformat = GL_COMPRESSED_SIGNED_RG_RGTC2;
-    #else
-        RIO_ASSERT(false);
-    #endif
         nativeFormat.format = 0;
         nativeFormat.type = 0;
         return true;
@@ -407,17 +363,12 @@ bool TextureFormatUtil::getNativeTextureFormat(
         return true;
 
     case TEXTURE_FORMAT_B8_G8_R8_A8_UNORM:
-#ifdef RIO_GLES
-        RIO_ASSERT(GLAD_GL_EXT_texture_format_BGRA8888);
-        nativeFormat.internalformat = GL_BGRA_EXT;
-        nativeFormat.format = GL_BGRA_EXT;
-#else
-        nativeFormat.internalformat = GL_RGBA8;
+        // this is a macro that is different for opengl 3.3 and gles3
+        nativeFormat.internalformat = BGRA_INTERNAL_FORMAT;
         nativeFormat.format = GL_BGRA;
-#endif
         nativeFormat.type = GL_UNSIGNED_BYTE;
         return true;
-#endif
+
     default:
         RIO_ASSERT(false);
         MemUtil::set(&nativeFormat, 0, sizeof(NativeTextureFormat));

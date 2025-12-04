@@ -37,6 +37,11 @@
     #include <stdbool.h>
 #endif
 
+#ifdef RIO_GLES
+    #define RIO_NO_POLYGON_MODE
+    #define RIO_NO_MRT
+#endif
+
 typedef  int8_t s8;
 typedef uint8_t u8;
 

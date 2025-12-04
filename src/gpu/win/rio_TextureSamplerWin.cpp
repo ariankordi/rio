@@ -98,16 +98,12 @@ void TextureSampler2D::updateFilter_() const
     }
 }
 
+// some of these are not available on opengl es 3.0
 #ifdef RIO_GLES
     #define GL_CLAMP_TO_BORDER GL_CLAMP_TO_EDGE
     #define GL_MIRROR_CLAMP_EXT GL_MIRRORED_REPEAT//GL_MIRROR_CLAMP_TO_EDGE_EXT
     #define GL_CLAMP_TO_EDGE_TO_BORDER GL_CLAMP_TO_EDGE
     #define GL_MIRROR_CLAMP_TO_BORDER_EXT GL_MIRRORED_REPEAT//GL_MIRROR_CLAMP_TO_EDGE_EXT
-#endif
-
-// GL_CLAMP was removed in opengl 3.2
-#ifndef GL_CLAMP
-    #define GL_CLAMP GL_CLAMP_TO_EDGE
 #endif
 
 void TextureSampler2D::updateWrap_() const
@@ -127,7 +123,8 @@ void TextureSampler2D::updateWrap_() const
         RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_S, GL_MIRROR_CLAMP_TO_EDGE_EXT));
         break;
     case TEX_WRAP_MODE_CLAMP_HALF_BORDER:
-        RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_S, GL_CLAMP));
+        // NOTE: GL_CLAMP was REMOVED in OpenGL 3.2 Core profile.
+        RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));// GL_CLAMP));
         break;
     case TEX_WRAP_MODE_MIRROR_ONCE_HALF_BORDER:
         RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_S, GL_MIRROR_CLAMP_EXT));
@@ -155,7 +152,7 @@ void TextureSampler2D::updateWrap_() const
         RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_T, GL_MIRROR_CLAMP_TO_EDGE_EXT));
         break;
     case TEX_WRAP_MODE_CLAMP_HALF_BORDER:
-        RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_T, GL_CLAMP));
+        RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));//GL_CLAMP));
         break;
     case TEX_WRAP_MODE_MIRROR_ONCE_HALF_BORDER:
         RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_T, GL_MIRROR_CLAMP_EXT));
@@ -183,7 +180,7 @@ void TextureSampler2D::updateWrap_() const
         RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_R, GL_MIRROR_CLAMP_TO_EDGE_EXT));
         break;
     case TEX_WRAP_MODE_CLAMP_HALF_BORDER:
-        RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_R, GL_CLAMP));
+        RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));//GL_CLAMP));
         break;
     case TEX_WRAP_MODE_MIRROR_ONCE_HALF_BORDER:
         RIO_GL_CALL(glSamplerParameteri(mSamplerInner, GL_TEXTURE_WRAP_R, GL_MIRROR_CLAMP_EXT));
@@ -199,18 +196,18 @@ void TextureSampler2D::updateWrap_() const
 
 void TextureSampler2D::updateBorderColor_() const
 {
-    #ifndef RIO_GLES
+#ifndef RIO_GLES
     RIO_GL_CALL(glSamplerParameterfv(mSamplerInner, GL_TEXTURE_BORDER_COLOR, mBorderColor));
-    #endif
+#endif
 }
 
 void TextureSampler2D::updateLOD_() const
 {
     RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MIN_LOD, mMinLOD));
     RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_LOD, mMaxLOD));
-    #ifndef RIO_GLES
+#ifndef RIO_GLES
     RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_LOD_BIAS, mLODBias));
-    #endif
+#endif
 }
 
 void TextureSampler2D::updateDepthComp_() const

@@ -22,9 +22,7 @@ RenderStateMRT::RenderStateMRT()
     , mStencilOpZFail(Graphics::STENCIL_KEEP)
     , mStencilOpZPass(Graphics::STENCIL_KEEP)
 
-#ifndef RIO_GLES
     , mPolygonMode(Graphics::POLYGON_MODE_FILL)
-#endif
     , mPolygonOffsetEnable(false)
     , mPolygonOffsetPointLineEnable(false)
 {

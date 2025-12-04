@@ -16,7 +16,7 @@ enum Drawer::PrimitiveMode : u32
     TRIANGLES                   = GL_TRIANGLES,
     TRIANGLE_FAN                = GL_TRIANGLE_FAN,
     TRIANGLE_STRIP              = GL_TRIANGLE_STRIP,
-#ifndef RIO_GLES
+#ifdef GL_LINES_ADJACENCY // not available on gles 3
     LINES_ADJACENCY             = GL_LINES_ADJACENCY,
     LINE_STRIP_ADJACENCY        = GL_LINE_STRIP_ADJACENCY,
     TRIANGLES_ADJACENCY         = GL_TRIANGLES_ADJACENCY,
@@ -25,7 +25,6 @@ enum Drawer::PrimitiveMode : u32
     LINE_LOOP                   = GL_LINE_LOOP
 };
 
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
 inline void Drawer::DrawArraysInstanced(PrimitiveMode mode, u32 count, u32 instanceCount, u32 first)
 {
     RIO_GL_CALL(glDrawArraysInstanced(mode, first, count, instanceCount));
@@ -42,7 +41,6 @@ inline void Drawer::DrawElementsInstanced(PrimitiveMode mode, u32 count, const u
 
     RIO_GL_CALL(glDrawElementsInstanced(mode, count, GL_UNSIGNED_SHORT, indices, instanceCount));
 }
-#endif // !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
 
 inline void Drawer::DrawArrays(PrimitiveMode mode, u32 count, u32 first)
 {

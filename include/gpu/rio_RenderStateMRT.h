@@ -179,11 +179,7 @@ public:
         mStencilOpZPass = zpass;
     }
 
-#ifndef RIO_GLES
     void setPolygonMode(Graphics::PolygonMode mode)
-#else
-    void setPolygonMode(int mode)
-#endif
     {
         mPolygonMode = mode;
     }
@@ -324,11 +320,7 @@ public:
         return mStencilOpZPass;
     }
 
-#ifndef RIO_GLES
     Graphics::PolygonMode getPolygonMode() const
-#else
-    int                   getPolygonMode() const
-#endif
     {
         return mPolygonMode;
     }
@@ -359,11 +351,7 @@ private:
     Graphics::StencilOp     mStencilOpFail;
     Graphics::StencilOp     mStencilOpZFail;
     Graphics::StencilOp     mStencilOpZPass;
-#ifndef RIO_GLES
     Graphics::PolygonMode   mPolygonMode;
-#else
-    int                     mPolygonMode;
-#endif
     bool                    mPolygonOffsetEnable;
     bool                    mPolygonOffsetPointLineEnable;
 };

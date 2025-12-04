@@ -64,7 +64,6 @@ void Window::resizeCallback_(s32 width, s32 height)
     RIO_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
     RIO_GL_CALL(glBindTexture(GL_TEXTURE_2D, GL_NONE));
 
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0) // GL ES not version 3.0
     // Set Depth-Stencil Buffer dimensions and format
     RIO_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, mNativeWindow.mDepthBufferHandle));
     RIO_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mWidth, mHeight));
@@ -74,7 +73,6 @@ void Window::resizeCallback_(s32 width, s32 height)
     RIO_GL_CALL(glBindTexture(GL_TEXTURE_2D, mNativeWindow.mDepthBufferTextureHandle));
     RIO_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, mWidth, mHeight, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr));
     RIO_GL_CALL(glBindTexture(GL_TEXTURE_2D, GL_NONE));
-#endif // !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
 
     lyr::Layer::onResize_(width, height);
 
@@ -295,9 +293,7 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
     }
     RIO_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mNativeWindow.mFramebufferHandle));
     RIO_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mNativeWindow.mColorBufferTextureHandle, 0));
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
     RIO_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mNativeWindow.mDepthBufferHandle));
-#endif
 
     // Enable scissor test
     RIO_GL_CALL(glEnable(GL_SCISSOR_TEST));
@@ -357,10 +353,8 @@ bool Window::createFb_()
 
     // Set Color Buffer dimensions and format
     RIO_GL_CALL(glBindTexture(GL_TEXTURE_2D, mNativeWindow.mColorBufferTextureHandle));
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
     RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0));
     RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0));
-#endif
     RIO_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
     RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
     RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
@@ -370,7 +364,6 @@ bool Window::createFb_()
     // Attach it to the Frame Buffer
     RIO_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mNativeWindow.mColorBufferTextureHandle, 0));
 
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
     // Generate Depth-Stencil Buffer as OpenGL render target
     RIO_GL_CALL(glGenRenderbuffers(1, &mNativeWindow.mDepthBufferHandle));
     if (mNativeWindow.mDepthBufferHandle == GL_NONE)
@@ -437,8 +430,6 @@ bool Window::createFb_()
     if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
         return false;
 
-#endif // !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
-
     return true;
 }
 
@@ -489,9 +480,7 @@ void Window::makeContextCurrent() const
     // Bind our Frame Buffer
     RIO_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mNativeWindow.mFramebufferHandle));
     RIO_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mNativeWindow.mColorBufferTextureHandle, 0));
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
     RIO_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mNativeWindow.mDepthBufferHandle));
-#endif
 }
 
 void Window::setSwapInterval(u32 swap_interval)
@@ -699,9 +688,6 @@ void Window::clearDepthStencil(f32 depth, u8 stencil)
 
 void Window::updateDepthBufferTexture_()
 {
-#if defined(RIO_GLES) && !defined(GL_ES_VERSION_3_0)
-    RIO_ASSERT(false);
-#else
     Graphics::setViewport(0, 0, mWidth, mHeight);
     Graphics::setScissor(0, 0, mWidth, mHeight);
 
@@ -709,7 +695,6 @@ void Window::updateDepthBufferTexture_()
     RIO_GL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, mNativeWindow.mDepthBufferCopyFramebufferSrc));
     RIO_GL_CALL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mNativeWindow.mDepthBufferCopyFramebufferDst));
     RIO_GL_CALL(glBlitFramebuffer(0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST));
-#endif
 }
 
 }

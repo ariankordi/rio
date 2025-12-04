@@ -19,6 +19,12 @@
 
 #endif
 
+#ifdef RIO_NO_POLYGON_MODE
+    #define GL_POINT 0
+    #define GL_LINE 0
+    #define GL_FILL 0
+#endif // RIO_NO_POLYGON_MODE
+
 namespace rio {
 
 class Window;
@@ -94,14 +100,12 @@ public:
         ENUM_VAL(STENCIL_INCR_WRAP, GL_INCR_WRAP,   GX2_STENCIL_FUNCTION_INCR_WRAP),
         ENUM_VAL(STENCIL_DECR_WRAP, GL_DECR_WRAP,   GX2_STENCIL_FUNCTION_DECR_WRAP)
     };
-#ifndef RIO_GLES
     enum PolygonMode
     {
         ENUM_VAL(POLYGON_MODE_POINT,    GL_POINT,   GX2_POLYGON_MODE_POINT),
         ENUM_VAL(POLYGON_MODE_LINE,     GL_LINE,    GX2_POLYGON_MODE_LINE),
         ENUM_VAL(POLYGON_MODE_FILL,     GL_FILL,    GX2_POLYGON_MODE_TRIANGLE)
     };
-#endif
     enum
     {
         RENDER_TARGET_MAX_NUM   = 4

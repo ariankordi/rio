@@ -86,7 +86,7 @@ void Texture2DUtil::bind(u32 handle)
 
 void Texture2DUtil::setSwizzleCurrent(u32 compMap)
 {
-#ifndef RIO_GLES
+#ifndef __EMSCRIPTEN__ // this is supported on GL 3.3 and GL ES 3.0, but not WebGL 2.0
     static const GLint TEX_COMP_MAP_TO_GL[6] = {
         GL_RED, GL_GREEN, GL_BLUE,
         GL_ALPHA, GL_ZERO, GL_ONE
@@ -99,19 +99,18 @@ void Texture2DUtil::setSwizzleCurrent(u32 compMap)
         TEX_COMP_MAP_TO_GL[compMap >>  0 & 0xFF]
     };
 
-    RIO_GL_CALL(glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle));
-#endif
+    RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, swizzle[0]));
+    RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, swizzle[1]));
+    RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, swizzle[2]));
+    RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, swizzle[3]));
+#endif // __EMSCRIPTEN__
 }
 
 void Texture2DUtil::setNumMipsCurrent(u32 mipLevels)
 {
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
     mipLevels = std::min(std::max(mipLevels, 1u), 14u);
     RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0));
     RIO_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipLevels - 1));
-#else
-    RIO_LOG("Texture2DUtil::setNumMipsCurrent(%d) called but this is not supported on OpenGL ES 2.0 i think\n", mipLevels);
-#endif
 }
 
 void Texture2DUtil::uploadTextureCurrent(

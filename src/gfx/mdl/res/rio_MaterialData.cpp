@@ -298,7 +298,7 @@ void Material::initRenderState(RenderState& state) const
         if (found)
             state.setStencilTestOp(fail, zfail, zpass);
     }
-#ifndef RIO_GLES
+
     {
         Graphics::PolygonMode mode;
         bool found = true;
@@ -314,7 +314,6 @@ void Material::initRenderState(RenderState& state) const
         if (found)
             state.setPolygonMode(mode);
     }
-#endif
     state.setPolygonOffsetEnable(mRenderFlags & POLYGON_OFFSET_ENABLE,
                                  mRenderFlags & POLYGON_OFFSET_POINT_LINE_ENABLE);
 }

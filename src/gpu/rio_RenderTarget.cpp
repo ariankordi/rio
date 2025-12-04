@@ -115,12 +115,8 @@ void RenderTargetDepth::bind() const
     GX2SetDepthBuffer(&mInnerBuffer);
 #elif RIO_IS_WIN
     RIO_ASSERT(mHandle != GL_NONE);
-#if !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
     const GLenum attachment = mHasStencil
         ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-#else
-    const GLenum attachment = GL_DEPTH_ATTACHMENT;
-#endif // !defined(RIO_GLES) || defined(GL_ES_VERSION_3_0)
     RIO_GL_CALL(glFramebufferTexture2D(
         GL_FRAMEBUFFER, attachment,
         GL_TEXTURE_2D, mHandle, mMipLevel));

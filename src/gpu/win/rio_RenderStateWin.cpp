@@ -16,30 +16,8 @@ void RenderState::apply() const
     RIO_GL_CALL(glStencilFunc(mStencilTestFunc, mStencilTestRef, mStencilTestMask));
     RIO_GL_CALL(glStencilOp(mStencilOpFail, mStencilOpZFail, mStencilOpZPass));
 
-    switch (mCullingMode)
-    {
-    case Graphics::CULLING_MODE_NONE:
-        RIO_GL_CALL(glDisable(GL_CULL_FACE));
-        break;
-    case Graphics::CULLING_MODE_FRONT:
-        RIO_GL_CALL(glEnable(GL_CULL_FACE));
-        RIO_GL_CALL(glCullFace(GL_FRONT));
-        break;
-    case Graphics::CULLING_MODE_BACK:
-        RIO_GL_CALL(glEnable(GL_CULL_FACE));
-        RIO_GL_CALL(glCullFace(GL_BACK));
-        break;
-    case Graphics::CULLING_MODE_ALL:
-        RIO_GL_CALL(glEnable(GL_CULL_FACE));
-        RIO_GL_CALL(glCullFace(GL_FRONT_AND_BACK));
-    }
-#ifndef RIO_GLES
-    RIO_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, mPolygonMode));
+    applyCullingAndPolygonModeAndPolygonOffset();
 
-    RIO_GL_CALL((mPolygonOffsetEnable ? glEnable : glDisable)(GL_POLYGON_OFFSET_FILL));
-    RIO_GL_CALL((mPolygonOffsetPointLineEnable ? glEnable : glDisable)(GL_POLYGON_OFFSET_POINT));
-    RIO_GL_CALL((mPolygonOffsetPointLineEnable ? glEnable : glDisable)(GL_POLYGON_OFFSET_LINE));
-#endif
     RIO_GL_CALL((mBlendEnable ? glEnable : glDisable)(GL_BLEND));
     RIO_GL_CALL(glBlendFuncSeparate(mBlendFactorSrcRGB, mBlendFactorDstRGB, mBlendFactorSrcA, mBlendFactorDstA));
     RIO_GL_CALL(glBlendEquationSeparate(mBlendEquationRGB, mBlendEquationA));
@@ -97,13 +75,13 @@ void RenderState::applyCullingAndPolygonModeAndPolygonOffset() const
         RIO_GL_CALL(glEnable(GL_CULL_FACE));
         RIO_GL_CALL(glCullFace(GL_FRONT_AND_BACK));
     }
-#ifndef RIO_GLES
+#ifndef RIO_NO_POLYGON_MODE
     RIO_GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, mPolygonMode));
 
     RIO_GL_CALL((mPolygonOffsetEnable ? glEnable : glDisable)(GL_POLYGON_OFFSET_FILL));
     RIO_GL_CALL((mPolygonOffsetPointLineEnable ? glEnable : glDisable)(GL_POLYGON_OFFSET_POINT));
     RIO_GL_CALL((mPolygonOffsetPointLineEnable ? glEnable : glDisable)(GL_POLYGON_OFFSET_LINE));
-#endif
+#endif // RIO_NO_POLYGON_MODE
 }
 
 }
