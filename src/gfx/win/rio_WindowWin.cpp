@@ -494,14 +494,14 @@ void Window::setSwapInterval(u32 swap_interval)
 void Window::setVpToFb_() const
 {
     RIO_GL_CALL(glViewport(0, 0, mWidth, mHeight));
-    RIO_GL_CALL(glDepthRange(0.f, 1.f));
+    RIO_GL_CALL(glDepthRangef(0.f, 1.f));
     RIO_GL_CALL(glScissor(0, 0, mWidth, mHeight));
 }
 
 void Window::restoreVp_() const
 {
     RIO_GL_CALL(glViewport(Graphics::sViewportX, Graphics::sViewportY, Graphics::sViewportWidth, Graphics::sViewportHeight));
-    RIO_GL_CALL(glDepthRange(Graphics::sViewportNear, Graphics::sViewportFar));
+    RIO_GL_CALL(glDepthRangef(Graphics::sViewportNear, Graphics::sViewportFar));
     RIO_GL_CALL(glScissor(Graphics::sScissorX, Graphics::sScissorY, Graphics::sScissorWidth, Graphics::sScissorHeight));
 }
 
@@ -590,7 +590,7 @@ void Window::clearDepth()
 
     // Clear
     RIO_GL_CALL(glDepthMask(GL_TRUE));
-    RIO_GL_CALL(glClearDepth(1.0f));
+    RIO_GL_CALL(glClearDepthf(1.0f));
     RIO_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 
     // Restore viewport and scissor
@@ -607,7 +607,7 @@ void Window::clearDepth(f32 depth)
 
     // Clear
     RIO_GL_CALL(glDepthMask(GL_TRUE));
-    RIO_GL_CALL(glClearDepth(depth));
+    RIO_GL_CALL(glClearDepthf(depth));
     RIO_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 
     // Restore viewport and scissor
@@ -658,7 +658,7 @@ void Window::clearDepthStencil()
 
     // Clear
     RIO_GL_CALL(glDepthMask(GL_TRUE));
-    RIO_GL_CALL(glClearDepth(1.0f));
+    RIO_GL_CALL(glClearDepthf(1.0f));
     RIO_GL_CALL(glStencilMask(0xFF));
     RIO_GL_CALL(glClearStencil(0));
     RIO_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
@@ -677,7 +677,7 @@ void Window::clearDepthStencil(f32 depth, u8 stencil)
 
     // Clear
     RIO_GL_CALL(glDepthMask(GL_TRUE));
-    RIO_GL_CALL(glClearDepth(depth));
+    RIO_GL_CALL(glClearDepthf(depth));
     RIO_GL_CALL(glStencilMask(0xFF));
     RIO_GL_CALL(glClearStencil(stencil));
     RIO_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));

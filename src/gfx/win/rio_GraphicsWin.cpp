@@ -35,7 +35,7 @@ void Graphics::setViewport(s32 x, s32 y, u32 width, u32 height, f32 near, f32 fa
     sViewportFar = far;
 
     RIO_GL_CALL(glViewport(x, y, width, height));
-    RIO_GL_CALL(glDepthRange(near, far));
+    RIO_GL_CALL(glDepthRangef(near, far));
 }
 
 void Graphics::setScissor(s32 x, s32 y, u32 width, u32 height, s32 frame_buffer_height)

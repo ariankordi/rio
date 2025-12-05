@@ -23,18 +23,9 @@
     typedef void GLFWwindow;
 #endif
 
-// define functions that do not exist on OpenGL ES
-#ifdef RIO_GLES
-    #define glDepthRange glDepthRangef
-    #define glClearDepth glClearDepthf
-    #ifndef RIO_NO_CLIP_CONTROL
-        #define RIO_NO_CLIP_CONTROL // do not call glClipControl
-    #endif
-#elif defined(__APPLE__)
-    #ifndef RIO_NO_CLIP_CONTROL
-        #define RIO_NO_CLIP_CONTROL // not supported on macOS
-    #endif
-#endif // RIO_GLES
+#if (defined(__APPLE__) || defined(RIO_GLES)) && !defined(RIO_NO_CLIP_CONTROL)
+    #define RIO_NO_CLIP_CONTROL // do not call glClipControl, not supported on macOS
+#endif
 
 #ifdef RIO_DEBUG
 

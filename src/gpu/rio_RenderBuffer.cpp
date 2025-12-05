@@ -194,7 +194,7 @@ void RenderBuffer::clear(u32 color_target_index, u32 clear_flag, const Color4f& 
         if (clear_flag & CLEAR_FLAG_DEPTH)
         {
             RIO_GL_CALL(glDepthMask(GL_TRUE));
-            RIO_GL_CALL(glClearDepth(depth));
+            RIO_GL_CALL(glClearDepthf(depth));
             clear_mask |= GL_DEPTH_BUFFER_BIT;
         }
 
