@@ -16,7 +16,6 @@ struct InitializeArg
         u32 height = 720;
 #if RIO_IS_WIN
         bool resizable = false;
-        bool invisible = false;
         u32 gl_major = 3;
         #ifdef RIO_GLES
             u32 gl_minor = 0;

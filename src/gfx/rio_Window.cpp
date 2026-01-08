@@ -10,7 +10,6 @@ bool Window::createSingleton(
     u32 width, u32 height
 #if RIO_IS_WIN
     , bool resizable
-    , bool invisible
     , u32 gl_major
     , u32 gl_minor
 #endif // RIO_IS_WIN
@@ -26,7 +25,6 @@ bool Window::createSingleton(
     if (!window->initialize_(
 #if RIO_IS_WIN
         resizable
-        , invisible
         , gl_major
         , gl_minor
 #endif // RIO_IS_WIN

@@ -127,12 +127,6 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     }
 
-    if (invisible)
-    {
-        // make window invisible for headless operations
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    }
-
 #ifndef __EMSCRIPTEN__
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
     glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
