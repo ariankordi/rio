@@ -71,28 +71,31 @@ void TextureSampler2D::updateFilter_() const
 #ifndef RIO_NO_GL_LOADER
     #ifdef RIO_USE_GLEW
         isAnisoSupported = GLEW_EXT_texture_filter_anisotropic != 0;
-    #else
+    #elif defined(GLAD_GL_EXT_texture_filter_anisotropic)
         isAnisoSupported = GLAD_GL_EXT_texture_filter_anisotropic;
+    #elif defined(GLAD_GL_ARB_texture_filter_anisotropic)
+        isAnisoSupported = GLAD_GL_ARB_texture_filter_anisotropic;
     #endif
 #endif // RIO_NO_GL_LOADER
+
     if (isAnisoSupported)
     {
         switch (mMaxAniso)
         {
         case TEX_ANISO_1_TO_1:
-            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f));
+            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY, 1.0f));
             break;
         case TEX_ANISO_2_TO_1:
-            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0f));
+            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY, 2.0f));
             break;
         case TEX_ANISO_4_TO_1:
-            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f));
+            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY, 4.0f));
             break;
         case TEX_ANISO_8_TO_1:
-            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY_EXT, 8.0f));
+            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY, 8.0f));
             break;
         case TEX_ANISO_16_TO_1:
-            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f));
+            RIO_GL_CALL(glSamplerParameterf(mSamplerInner, GL_TEXTURE_MAX_ANISOTROPY, 16.0f));
             break;
         }
     }

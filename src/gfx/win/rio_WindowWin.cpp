@@ -1,3 +1,7 @@
+#include <misc/rio_Types.h>
+
+#if RIO_IS_WIN
+
 #if !defined(RIO_NO_GLAD_IMPLEMENTATION) && !defined(RIO_USE_GLEW)
     #ifdef RIO_GLES
         #define GLAD_EGL_IMPLEMENTATION
@@ -7,22 +11,12 @@
     #endif
 #endif
 
-#include <misc/rio_Types.h>
-
-#if RIO_IS_WIN
-
 #include <gfx/rio_Window.h>
 #include <gfx/lyr/rio_Layer.h>
 #include <gpu/rio_RenderState.h>
 #include <gpu/rio_Shader.h>
 #include <gpu/rio_VertexArray.h>
 
-/*
-#ifndef __EMSCRIPTEN__
-    #define GLFW_EXPOSE_NATIVE_EGL 1
-    #include <GLFW/glfw3native.h>
-#endif
-*/
 namespace {
 
 static rio::Shader gScreenShader;
@@ -46,6 +40,11 @@ static const Vertex vertices[] = {
     { {  1.0f,  1.0f }, { 1.0f, 1.0f } },
     { { -1.0f,  1.0f }, { 0.0f, 1.0f } }
 };
+
+void errorCallbackForGLFW(int error, const char* msg)
+{
+    RIO_LOG("GLFW error %d: %s\n", error, msg);
+}
 
 }
 
@@ -92,22 +91,18 @@ void Window::resizeCallback_(GLFWwindow* glfw_window, s32 width, s32 height)
     window->resizeCallback_(width, height);
 }
 
-void errorCallbackForGLFW(int error, const char* msg)
+bool Window::initialize_(bool resizable, u32 gl_major, u32 gl_minor)
 {
-    RIO_LOG("GLFW error %d: %s\n", error, msg);
-}
-
-bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_minor)
-{
-#ifdef RIO_NO_GLFW_CALLS
-    RIO_LOG("WARNING: Window::initialize_ was called, but this was built with the definition RIO_NO_GLFW_CALLS set, which means that no GLFW calls will be made, and no windows will ever be created. This program will probably crash now.\n");
-#else
-    glfwSetErrorCallback(errorCallbackForGLFW);
-
-#ifdef RIO_USE_OSMESA
-    // only works on glfw 3.4 and higher
-    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_NULL);
+#ifdef RIO_NO_GL_LOADER
+    RIO_ASSERT(false && "Window::initialize_ was called, but RIO_NO_GL_LOADER is defined, so GLFW can't make an OpenGL context.");
 #endif
+#ifdef RIO_NO_GLFW_CALLS
+    RIO_ASSERT(false && "Window::initialize_ was called, but RIO_NO_GLFW_CALLS is defined.");
+#else
+
+    #if RIO_DEBUG
+    glfwSetErrorCallback(errorCallbackForGLFW);
+    #endif
 
     // Initialize GLFW
     if (!glfwInit())
@@ -115,49 +110,68 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
         RIO_LOG("Failed to initialize GLFW.\n");
         return false;
     }
-    /*if (resizable)
+
+    if (resizable)
     {
         // Start maximized if resizable
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
     }
-    else*/
-    if (!resizable)
+    else
     {
         // Disable resizing
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     }
 
-#ifndef __EMSCRIPTEN__
-    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
-#endif // __EMSCRIPTEN__
     // Request OpenGL Core Profile
-    RIO_LOG("OpenGL Context Version: %u.%u\n", gl_major, gl_minor);
-#ifdef RIO_GLES
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#endif
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_minor);
-  //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#if defined(RIO_GLES) && !defined(__EMSCRIPTEN__)
-    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
-#elif defined(RIO_USE_OSMESA)
-    // "OpenGL ES is not available on OSMesa"
-    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_OSMESA_CONTEXT_API);
-#endif
-
     // Enforce double-buffering
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
+    if (gl_major == 0 && gl_minor == 0)
+    {
+        // Set default version.
+        gl_major = 3;
+        gl_minor = 3;
+    }
+    RIO_LOG("Requested OpenGL Version: %u.%u\n", gl_major, gl_minor);
+
+    int clientApi = GLFW_OPENGL_API;
+    int ctxApi = GLFW_NATIVE_CONTEXT_API;
+
+    //glfwWindowHint(GLFW_CLIENT_API, clientApi);
+    //glfwWindowHint(GLFW_CONTEXT_CREATION_API, ctxApi);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_major);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_minor);
 
     // Create the window instance
-    mNativeWindow.mpGLFWwindow = glfwCreateWindow(mWidth, mHeight, "Game", nullptr, nullptr);
-    if (!mNativeWindow.mpGLFWwindow)
+    if (!(mNativeWindow.mpGLFWwindow =
+        glfwCreateWindow(mWidth, mHeight, "Game", nullptr, nullptr)))
+        //true)
     {
-        RIO_LOG("Failed to create GLFW window.\n");
+        RIO_LOG("Failed to create GLFW window (OpenGL).\n");
+
+        // Try OpenGL ES if OpenGL failed.
+#ifdef RIO_GLES
+        clientApi = GLFW_OPENGL_ES_API;
+        glfwWindowHint(GLFW_CLIENT_API, clientApi);
+    #ifndef __EMSCRIPTEN__
+        glfwWindowHint(GLFW_CONTEXT_CREATION_API, ctxApi);
+    #endif
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        // Try creating the window again.
+        if (!(mNativeWindow.mpGLFWwindow =
+            glfwCreateWindow(mWidth, mHeight, "Game", nullptr, nullptr)))
+        {
+            // Failed, give up.
+            RIO_LOG("Failed to create GLFW window (OpenGL ES 3.0).\n");
+            terminate_();
+            return false;
+        }
+#else
         terminate_();
         return false;
+#endif
     }
 
     // Query the Frame Buffer size
@@ -167,71 +181,42 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
 
     // Make context of window current
     glfwMakeContextCurrent(mNativeWindow.mpGLFWwindow);
-/*
-#ifndef __EMSCRIPTEN__
-    EGLDisplay display = glfwGetEGLDisplay();
-    int egl_version = gladLoaderLoadEGL(display);
-    printf("EGL %d.%d\n", GLAD_VERSION_MAJOR(egl_version), GLAD_VERSION_MINOR(egl_version));
-#endif
-*/
 
 #ifndef RIO_NO_GL_LOADER
     #if RIO_USE_GLEW
-            GLenum err = glewInit();
-        #ifndef __EMSCRIPTEN__
-            if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY)
-        #else
-            if (err != GLEW_OK)
-        #endif // __EMSCRIPTEN__
-            {
-                RIO_LOG("GLEW Initialization Error: %s (code: %d)\n", glewGetErrorString(err), err);
-                terminate_();
-                return false;
-            }
+        GLenum err = glewInit();
+        if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY)
+        {
+            RIO_LOG("GLEW Initialization Error: %s (code: %d)\n", glewGetErrorString(err), err);
+            terminate_();
+            return false;
+        }
     #else
         // use GLAD by default
-        #ifdef RIO_GLES
-            gladLoadGLES2(glfwGetProcAddress);
-        #else
-            gladLoadGL(glfwGetProcAddress);
-        #endif // RIO_GLES
+        int gladResult;
+        if (clientApi == GLFW_OPENGL_ES_API)
+            gladResult = gladLoadGLES2(glfwGetProcAddress);
+        else
+            gladResult = gladLoadGL(glfwGetProcAddress);
+        if (!gladResult)
+        {
+            RIO_LOG("GLAD initialization failed (returned %d)\n", gladResult);
+            terminate_();
+            return false;
+        }
     #endif // RIO_USE_GLEW
-
-#else
-    RIO_LOG("WARNING: In Window::initialize_, but RIO_NO_GL_LOADER was defined. This will probably crash right now if no other GL loader is resident.\n");
 #endif // RIO_NO_GL_LOADER
 
-    // Retrieve and log the renderer string
-    const char* renderer_str = (const char*)glGetString(GL_RENDERER);
-    if (renderer_str)
-    {
-        RIO_LOG("OpenGL Renderer: %s\n", renderer_str);
-    }
-    else
-    {
-        RIO_LOG("Failed to retrieve the renderer string.\n");
-    }
-    // Retrieve and log the OpenGL version string
-    const char* version_str = (const char*)glGetString(GL_VERSION);
-    if (version_str)
-    {
-        RIO_LOG("OpenGL Version: %s\n", version_str);
-    }
-    else
-    {
-        RIO_LOG("Failed to retrieve the OpenGL version string.\n");
-    }
+    [[maybe_unused]] const char* renderer_str;
+    RIO_GL_CALL(renderer_str = (const char*)glGetString(GL_RENDERER));
+    RIO_LOG("Renderer: %s\n", renderer_str);
 
-    // Retrieve and log the OpenGL core profile version string
-    const char* core_profile_version_str = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    if (core_profile_version_str)
-    {
-        RIO_LOG("OpenGL GLSL Version: %s\n", core_profile_version_str);
-    }
-    else
-    {
-        RIO_LOG("Failed to retrieve the OpenGL core profile version string.\n");
-    }
+    [[maybe_unused]] const char* version_str;
+    [[maybe_unused]] const char* glsl_version_str;
+    RIO_GL_CALL(version_str = (const char*)glGetString(GL_VERSION));
+    RIO_GL_CALL(glsl_version_str = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    RIO_LOG("OpenGL Context Version: %s\n", version_str);
+    RIO_LOG("GLSL Version: %s\n", glsl_version_str);
 
     // Set swap interval to 1 by default
     setSwapInterval(1);
@@ -244,10 +229,9 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
     if (!(GLAD_GL_VERSION_4_5 || GLAD_GL_ARB_clip_control))
 #endif // RIO_USE_GLEW
     {
-        RIO_LOG("Required OpenGL extensions not supported: GL_VERSION_4_5, GL_ARB_clip_control. Continuing anyway.\n");
-
-        /*terminate_();
-        return false;*/
+        RIO_LOG("GL_ARB_clip_control extension is not supported, or OpenGL version is lower than 4.5. Recompile with RIO_NO_CLIP_CONTROL.\n");
+        terminate_();
+        return false;
     }
     else
     {
@@ -263,28 +247,29 @@ bool Window::initialize_(bool resizable, bool invisible, u32 gl_major, u32 gl_mi
     // Load screen shader
     gScreenShader.load("screen_shader_win");
 
-    // Create and setup vertex array and buffer
-    gVertexArray = new VertexArray();
-    gVertexBuffer = new VertexBuffer(vertices, sizeof(vertices), sizeof(Vertex), 0);
-    if (!gVertexArray || !gVertexBuffer)
+    // Create screen vertex array and buffer
+    if (!(gVertexArray = new VertexArray()) ||
+        !(gVertexBuffer = new VertexBuffer(vertices, sizeof(vertices), sizeof(Vertex), 0)))
     {
-        RIO_LOG("Failed to create vertex array or buffer.\n");
+        RIO_LOG("Failed to create screen vertex array and buffer.\n");
         terminate_();
         return false;
     }
 
     // Process Vertex Array
-    gVertexArray->addAttribute(gPosStream, *gVertexBuffer);
+    gVertexArray->addAttribute(gPosStream,      *gVertexBuffer);
     gVertexArray->addAttribute(gTexCoordStream, *gVertexBuffer);
     gVertexArray->process();
 
-    // Create and bind the Frame Buffer
+    // Create Frame Buffer
     if (!createFb_())
     {
         RIO_LOG("Failed to create frame buffer.\n");
         terminate_();
         return false;
     }
+
+    // Bind our Frame Buffer
     RIO_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, mNativeWindow.mFramebufferHandle));
     RIO_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mNativeWindow.mColorBufferTextureHandle, 0));
     RIO_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mNativeWindow.mDepthBufferHandle));

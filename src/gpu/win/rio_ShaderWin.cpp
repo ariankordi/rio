@@ -167,10 +167,12 @@ void Shader::load(const char* base_fname, ShaderMode)
 
     std::string fragment_shader_src = std::string(fragment_shader_src_file, fragment_shader_src_file_len);
 
-#ifdef RIO_GLES
-    changeShaderSrcVersionToGLSL300ES(vertex_shader_src);
-    changeShaderSrcVersionToGLSL300ES(fragment_shader_src);
-#endif
+#ifdef GL_ES_VERSION_3_0
+    if (GLAD_GL_ES_VERSION_3_0) {
+        changeShaderSrcVersionToGLSL300ES(vertex_shader_src);
+        changeShaderSrcVersionToGLSL300ES(fragment_shader_src);
+    }
+#endif // GL_ES_VERSION_3_0
 
     const char* const c_vertex_shader_src = vertex_shader_src.c_str();
     const char* const c_fragment_shader_src = fragment_shader_src.c_str();

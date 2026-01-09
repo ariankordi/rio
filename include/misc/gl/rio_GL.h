@@ -9,7 +9,7 @@
     #else
         // use GLAD by default
         #ifdef RIO_GLES
-            #include <glad/gles2.h>
+            #include <glad/gles3-gl33-converged.h> //<glad/gles2.h>
         #else
             #include <glad/gl.h>
         #endif

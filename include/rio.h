@@ -16,12 +16,8 @@ struct InitializeArg
         u32 height = 720;
 #if RIO_IS_WIN
         bool resizable = false;
-        u32 gl_major = 3;
-        #ifdef RIO_GLES
-            u32 gl_minor = 0;
-        #else
-            u32 gl_minor = 3;
-        #endif
+        u32 gl_major = 0;
+        u32 gl_minor = 0;
 #endif // RIO_IS_WIN
     } window;
     struct
